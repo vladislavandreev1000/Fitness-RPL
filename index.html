@@ -239,16 +239,18 @@ function seg(options,tabKey){
 function renderPanel(){
   const p=$('panel'); const t=TEAMS.find(x=>x.team===sel);
   if(curTab==='vol'){
-    const opts=[{v:'sum',n:'Сумма за туры'},{v:'avg',n:'В среднем за игру'},{v:'share',n:'% от общей дистанции'}];
-    const cfg={sum:['м',0,false],avg:['м',0,false],share:['%',1,false]};
-    const k=segState.vol; const c=cfg[k];
+    const opts=[{v:'sum',n:'Сумма'},{v:'avg',n:'Среднее за игру'},{v:'avgPct',n:'% от рекорда'},{v:'peak',n:'Рекорд'},{v:'share',n:'Доля'}];
+    const k=segState.vol;
+    const cfg={sum:{unit:'м'},avg:{unit:'м'},avgPct:{unit:'%',dec:1},peak:{unit:'м'},share:{unit:'%',dec:1}}[k];
     const pl=placeOf('comb',k)[sel];
+    const dv=(k==='share'||k==='avgPct')?fmt1(t.comb[k])+'%':fmt(t.comb[k])+' м';
+    const note={sum:'Суммарный объём рывков+спринтов за все туры.',avg:'В среднем за один матч.',avgPct:'100% = лучшая игра команды по объёму.',peak:'Наибольший объём в одной игре.',share:'Доля высокоскоростной работы от всей дистанции.'}[k];
     p.innerHTML=`<div class="phead"><h2>Объём высокоскоростной работы</h2></div>
-      <div class="pnote">Рывки (5,51–7 м/с) и спринты (&gt;7 м/с) вместе. Суммарный объём, в среднем за матч и доля от всей дистанции команды.</div>
+      <div class="pnote">Рывки (5,51–7 м/с) и спринты (&gt;7 м/с) вместе. ${note}</div>
       ${seg(opts,'vol')}
-      <div class="subnote"><b>${sel}</b> — ${pl}-е место · ${k==='share'?fmt1(t.comb[k])+'%':fmt(t.comb[k])+' м'}</div>
+      <div class="subnote"><b>${sel}</b> — ${pl}-е место · ${dv}${k==='peak'?' (Тур '+t.comb.peakTour+')':''}</div>
       <div id="chart"></div>`;
-    barList($('chart'),'comb',k,{unit:c[0],dec:c[1]});
+    barList($('chart'),'comb',k,cfg);
     wireSeg('vol');
   } else if(curTab==='stab'){
     const opts=[{v:'avgPct',n:'% от своего рекорда'},{v:'peak',n:'Рекорд (макс. в игре)'},{v:'avgpos',n:'Средняя позиция'}];
